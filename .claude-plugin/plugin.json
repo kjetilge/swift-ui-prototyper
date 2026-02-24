@@ -1,0 +1,23 @@
+{
+  "name": "swift-ui-prototyper",
+  "description": "Generate SwiftUI prototypes with automatic screenshots for PRD documentation",
+  "version": "1.0.0",
+  "author": {
+    "name": "Kjetil Geirbo",
+    "email": "kjetil@geirbo.no"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/kjetilge/swift-ui-prototyper",
+  "keywords": [
+    "swiftui",
+    "prototype",
+    "mockup",
+    "prd",
+    "macos",
+    "ios",
+    "xcode",
+    "screenshot",
+    "storybook",
+    "documentation"
+  ]
+}
