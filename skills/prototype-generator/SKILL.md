@@ -305,6 +305,78 @@ Text("Title")
 6. Builds to verify
 7. Returns markdown with file list and screenshot instructions
 
+## Cowork Live Preview
+
+For real-time preview in Claude Cowork's embedded browser, set up the preview server:
+
+### Setup
+
+1. **Copy preview server** to the prototype folder:
+   ```bash
+   cp {plugin}/scripts/preview-server.js {project}/swift-ui-prototype/
+   ```
+
+2. **Create `.claude/launch.json`** in the prototype folder:
+   ```json
+   {
+     "version": "0.0.1",
+     "autoVerify": true,
+     "configurations": [
+       {
+         "name": "SwiftUI Preview",
+         "runtimeExecutable": "node",
+         "runtimeArgs": ["preview-server.js"],
+         "port": 3000
+       }
+     ]
+   }
+   ```
+
+3. **Ensure simulator is booted** before starting the preview server.
+
+### How It Works
+
+1. Cowork starts the preview server automatically via `launch.json`
+2. Server watches `.swift` files in Views/ and Stubs/
+3. On file change: xcodebuild → simulator screenshot → updates image
+4. HTML page auto-refreshes every 2 seconds
+5. Cowork's embedded browser shows live preview
+
+### Preview Server Features
+
+- **Auto-refresh**: Updates every 2 seconds
+- **Status indicator**: Green (ready), Yellow (building), Red (error)
+- **File watching**: Monitors Views/ and Stubs/ directories
+- **Debouncing**: Prevents rapid rebuilds on multiple saves
+- **Error display**: Shows build errors in the preview
+- **No dependencies**: Uses only Node.js built-in modules
+
+### API Endpoints
+
+| Endpoint | Description |
+|----------|-------------|
+| `/` | HTML preview page |
+| `/screenshot.png` | Latest screenshot |
+| `/api/status` | Build status JSON |
+| `/api/rebuild` | Trigger manual rebuild |
+
+### Project Structure with Live Preview
+
+```
+{project}/
+├── swift-ui-prototype/
+│   ├── .claude/
+│   │   └── launch.json           # Cowork server config
+│   ├── preview-server.js         # Live preview server
+│   ├── swift-ui-prototype.xcodeproj/
+│   ├── Views/
+│   ├── Stubs/
+│   └── docs/mockups/
+│       └── preview-latest.png    # Auto-updated screenshot
+└── docs/
+    └── mockups/
+```
+
 ## Dependencies
 
 - iOS 17.0+ / iPadOS 17.0+ (for simulator)
@@ -312,3 +384,4 @@ Text("Title")
 - Swift 5.9+
 - Xcode 15+ (for building and previews)
 - XcodeBuildMCP (required for automated screenshots via iPad Pro simulator)
+- Node.js (for Cowork live preview server)

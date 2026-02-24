@@ -33,6 +33,7 @@ Then in your project:
 - **Natural language to SwiftUI**: Describe UI, get working code
 - **Mini-Storybook pattern**: Multiple `#Preview` macros for each UI state
 - **High-resolution output**: 2752x1892 pixel screenshots (iPad Pro 13")
+- **Cowork live preview**: Real-time preview in embedded browser
 - **Responsive design**: Apps support all orientations
 - **Design system support**: Optional custom colors, typography, spacing
 - **Production-ready code**: Copy directly to your app
@@ -189,12 +190,66 @@ Text("Oppgaver")
     .background(DesignSystem.Colors.backgroundPrimary)
 ```
 
+## Cowork Live Preview
+
+For real-time preview in Claude Cowork's embedded browser:
+
+### Setup
+
+1. Copy the preview server to your prototype folder:
+   ```bash
+   cp scripts/preview-server.js your-project/swift-ui-prototype/
+   ```
+
+2. Create `.claude/launch.json` in the prototype folder:
+   ```json
+   {
+     "version": "0.0.1",
+     "autoVerify": true,
+     "configurations": [
+       {
+         "name": "SwiftUI Preview",
+         "runtimeExecutable": "node",
+         "runtimeArgs": ["preview-server.js"],
+         "port": 3000
+       }
+     ]
+   }
+   ```
+
+3. Boot the iPad Pro simulator before opening the project in Cowork.
+
+### How It Works
+
+```
+Edit Swift file → Server detects change → xcodebuild → screenshot → Browser refreshes
+```
+
+The preview server:
+- Watches Views/ and Stubs/ for `.swift` file changes
+- Triggers incremental builds via xcodebuild
+- Captures simulator screenshots automatically
+- Serves an auto-refreshing HTML page (every 2 seconds)
+- Shows build status (ready/building/error)
+
+### Preview Server API
+
+| Endpoint | Description |
+|----------|-------------|
+| `/` | HTML preview page |
+| `/screenshot.png` | Latest screenshot |
+| `/api/status` | Build status JSON |
+| `/api/rebuild` | Trigger manual rebuild |
+
+No npm dependencies required - uses only Node.js built-in modules.
+
 ## Requirements
 
 - macOS 14.0+ (Sonoma)
 - Xcode 15+
 - iOS 17.0+ SDK
 - Swift 5.9+
+- Node.js (for Cowork live preview)
 - Python 3 + Pillow (for screenshot processing)
 - XcodeBuildMCP (for automated builds and screenshots)
 

@@ -1,0 +1,15 @@
+{
+  "version": "0.0.1",
+  "autoVerify": true,
+  "configurations": [
+    {
+      "name": "SwiftUI Preview",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["preview-server.js"],
+      "port": 3000,
+      "env": {
+        "NODE_ENV": "development"
+      }
+    }
+  ]
+}
