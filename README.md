@@ -1,45 +1,75 @@
 # swift-ui-prototyper
 
-Claude Code plugin for generating SwiftUI prototypes with automatic stub data for PRD documentation.
+Claude Code plugin for generating SwiftUI prototypes with stub data for PRD documentation.
+
+## Why This Plugin?
+
+When creating PRDs for macOS/iOS apps, you need:
+- **High-quality mockups** that accurately represent the design
+- **Reusable code** that can be copied to production
+- **Multiple UI states** visualized (empty, loading, error, active)
+- **Fast iteration** from natural language to screenshot
+
+This plugin generates SwiftUI code with automatic stub data, builds it on iPad Pro simulator, and captures high-resolution screenshots for documentation.
+
+## Quick Start
+
+```bash
+# Use plugin with Claude Code CLI
+claude --plugin-dir ~/Developer/claude-plugins/swift-ui-prototyper
+
+# Or symlink for Cowork
+ln -sf ~/Developer/claude-plugins/swift-ui-prototyper ~/.claude/plugins/swift-ui-prototyper
+```
+
+Then in your project:
+
+```
+/prototype Task list with sidebar navigation, search field, and priority badges
+```
 
 ## Features
 
-- Generate SwiftUI Views from natural language descriptions
-- Auto-create stub data for multiple UI states (mini-Storybook)
-- Create custom design systems from reference images or text descriptions
-- Multiple `#Preview` macros for each view state
-- Automated screenshots via XcodeBuildMCP (iPad Pro simulator)
-- Reusable code for production implementation
-- Consistent project structure across all projects
+- **Natural language to SwiftUI**: Describe UI, get working code
+- **Mini-Storybook pattern**: Multiple `#Preview` macros for each UI state
+- **High-resolution output**: 2752x1892 pixel screenshots (iPad Pro 13")
+- **Responsive design**: Apps support all orientations
+- **Design system support**: Optional custom colors, typography, spacing
+- **Production-ready code**: Copy directly to your app
 
 ## Skills
 
-### 1. prototype-generator
+### prototype-generator
 
 Generate SwiftUI prototypes with stub data.
 
+**Activation:** `/prototype`, "lag prototype", "mockup", "UI-skisse"
+
 ```
-/prototype Library screen with sidebar navigation and video list
+/prototype Task list with sidebar navigation, search, and priority badges
 ```
 
 **Creates:**
-- `LibraryView.swift` with SwiftUI implementation
-- `VideoStubs.swift` with empty, single, typical, error states
+- `Views/TaskListView.swift` - SwiftUI implementation
+- `Stubs/TaskStubs.swift` - Data for empty, single, typical, many states
 - Multiple `#Preview` macros for each state
 - Navigation entry in `ContentView.swift`
+- Screenshots in `docs/mockups/`
 
-### 2. design-system-creator
+### design-system-creator
 
 Create custom design systems from reference images or text descriptions.
 
-```
-/design-system [attach screenshot of DaVinci Resolve]
-```
-
-Or with text:
+**Activation:** `/design-system`, "design system", "extract colors from"
 
 ```
 /design-system professional dark theme for video editing app
+```
+
+Or attach a screenshot:
+
+```
+/design-system [attach screenshot of DaVinci Resolve]
 ```
 
 **Creates:**
@@ -47,125 +77,126 @@ Or with text:
 - View extensions for common patterns
 - Consistent styling across all prototypes
 
-## Installation
-
-### Claude Code CLI
-
-```bash
-claude --plugin-dir ~/Developer/claude-plugins/swift-ui-prototyper
-```
-
-### Symlink for Cowork
-
-```bash
-ln -sf ~/Developer/claude-plugins/swift-ui-prototyper ~/.claude/plugins/swift-ui-prototyper
-```
-
 ## Project Structure
 
-The plugin expects/creates this structure in your project:
+The plugin creates this structure in your project:
 
 ```
 your-project/
 ├── swift-ui-prototype/
-│   ├── swift-ui-prototype.xcodeproj/   # iOS/iPadOS project
-│   ├── Info.plist                       # Landscape-only orientation
+│   ├── swift-ui-prototype.xcodeproj/   # iOS/iPadOS target
+│   ├── Info.plist                       # All orientations (responsive)
 │   ├── App.swift
-│   ├── ContentView.swift
-│   ├── DesignSystem.swift               # Optional: custom colors/typography
+│   ├── ContentView.swift                # Sidebar navigation
+│   ├── DesignSystem.swift               # Optional: custom styling
 │   ├── Views/
-│   │   └── LibraryView.swift
+│   │   └── TaskListView.swift
 │   └── Stubs/
-│       └── VideoStubs.swift
+│       └── TaskStubs.swift
 └── docs/
     └── mockups/
-        ├── library-empty.jpg
-        └── library-typical.jpg
+        ├── tasks-empty.jpg
+        ├── tasks-typical.jpg
+        └── tasks-many.jpg
 ```
 
-## Automated Screenshots
+## Screenshot Workflow
 
-Uses XcodeBuildMCP with iPad Pro 13" simulator for automated screenshots:
+Uses XcodeBuildMCP with iPad Pro 13" simulator:
+
+### Simulator Setup (for macOS-style apps)
+
+1. Move simulator to external display (iPad Pro 13" is large)
+2. Use "Fit Screen" (Window menu) for full visibility
+3. Rotate to landscape (Device → Rotate Right)
 
 ### Quick Screenshots (800x600)
 
 ```
-1. boot_sim()           → Start iPad Pro simulator
-2. build_run_sim()      → Build and launch app
-3. screenshot()         → Capture current screen
-4. cp to docs/mockups/  → Save for documentation
+boot_sim()           → Start iPad Pro simulator
+build_run_sim()      → Build and launch app
+screenshot()         → Capture current screen
 ```
 
 ### High-Resolution Screenshots (2752x1892)
 
-For production-quality screenshots without iPad chrome (status bar, home indicator):
+For production-quality screenshots without iPad chrome:
 
 ```bash
-# 1. Take raw screenshot
+# 1. Capture raw screenshot
 xcrun simctl io booted screenshot /tmp/raw.png --type png
 
 # 2. Process with included script
 python3 scripts/process_ipad_screenshot.py /tmp/raw.png docs/mockups/screen.jpg
 ```
 
-The processing script:
+The script:
 - Rotates from portrait framebuffer to landscape
 - Crops status bar (top 130px) and home indicator (bottom 42px)
-- Outputs clean, chrome-free screenshots
+- Outputs clean 2752x1892 pixel JPEG
 
-iPad Pro 13" (1366x1024 pt in landscape) provides desktop-like layouts with sidebar navigation.
-
-## Mini-Storybook Concept
+## Mini-Storybook Pattern
 
 Each view includes multiple preview states:
 
 ```swift
 #Preview("Empty") {
-    LibraryView(videos: VideoStubs.empty)
+    TaskListView(tasks: TaskStubs.empty)
+        .frame(width: 900, height: 600)
 }
 
 #Preview("Typical") {
-    LibraryView(videos: VideoStubs.typical)
+    TaskListView(tasks: TaskStubs.typical)
+        .frame(width: 900, height: 600)
 }
 
 #Preview("Many Items") {
-    LibraryView(videos: VideoStubs.many)
+    TaskListView(tasks: TaskStubs.many)
+        .frame(width: 900, height: 600)
 }
 ```
 
-This allows you to:
-- Visualize all UI states
+Benefits:
+- Visualize all UI states in Xcode previews
 - Export screenshots for each state
-- Test edge cases
+- Test edge cases (empty, error, overflow)
 - Document expected data structures
 
 ## Design System Example
-
-With a design system, prototypes use consistent styling:
 
 ```swift
 // DesignSystem.swift
 enum DesignSystem {
     enum Colors {
         static let backgroundPrimary = Color(white: 0.12)
+        static let backgroundSecondary = Color(white: 0.18)
         static let textPrimary = Color(white: 0.95)
-        static let accent = Color(white: 0.6)
+        static let textSecondary = Color(white: 0.6)
+        static let accent = Color.blue
+    }
+
+    enum Spacing {
+        static let small: CGFloat = 8
+        static let medium: CGFloat = 16
+        static let large: CGFloat = 24
     }
 }
 
-// LibraryView.swift
-Text("Bibliotek")
+// TaskListView.swift
+Text("Oppgaver")
     .foregroundStyle(DesignSystem.Colors.textPrimary)
+    .padding(DesignSystem.Spacing.medium)
     .background(DesignSystem.Colors.backgroundPrimary)
 ```
 
 ## Requirements
 
 - macOS 14.0+ (Sonoma)
-- iOS 17.0+ / iPadOS 17.0+ (for simulator)
 - Xcode 15+
+- iOS 17.0+ SDK
 - Swift 5.9+
-- XcodeBuildMCP (for automated screenshots)
+- Python 3 + Pillow (for screenshot processing)
+- XcodeBuildMCP (for automated builds and screenshots)
 
 ## License
 
