@@ -6,8 +6,9 @@
     "name": "Kjetil Geirbo",
     "email": "kjetil@geirbo.no"
   },
-  "license": "MIT",
+  "homepage": "https://github.com/kjetilge/swift-ui-prototyper",
   "repository": "https://github.com/kjetilge/swift-ui-prototyper",
+  "license": "MIT",
   "keywords": [
     "swiftui",
     "prototype",
